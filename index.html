@@ -1919,7 +1919,7 @@
                 }
                 if (e.ctrlKey && e.key === "Enter") {
                     e.preventDefault();
-                    runCode(e);
+                    runCode();
                 }
             });
             ta.addEventListener("input", () => {
@@ -2003,7 +2003,6 @@
                 : null;
         }
         function runCode() {
-            e.preventDefault();
             const lv = LEVELS.find((l) => l.id === S.curLevel);
             const code = document.getElementById("codearea").value;
             S.attempts++;
