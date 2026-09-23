@@ -1,0 +1,2167 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>PYTHON QUEST</title>
+    <link rel="icon" href="ico.png" type="image/x-icon">
+    <style>
+        :root {
+            --bg1: #0b0f19;
+            --bg2: #1a1d2e;
+            --cyan: #00f2fe;
+            --purple: #7928ca;
+            --green: #00dfa2;
+            --pink: #ff007a;
+            --amber: #ffb000;
+            --text: #e7ecff;
+            --glass: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 10%,
+                    var(--bg2),
+                    var(--bg1) 60%);
+            color: var(--text);
+            font-family: "Segoe UI", system-ui, sans-serif;
+            min-height: 100%;
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        #bggrid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridmove 20s linear infinite;
+        }
+
+        @keyframes gridmove {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 40px 40px;
+            }
+        }
+
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            background: var(--cyan);
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-30px);
+            }
+        }
+
+        #app {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .glow {
+            text-shadow: 0 0 12px currentColor;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #0b0f19;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            transition:
+                transform 0.12s,
+                box-shadow 0.12s;
+            box-shadow: 0 0 14px rgba(0, 242, 254, 0.35);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 22px rgba(0, 242, 254, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .btn.secondary {
+            background: var(--glass);
+            color: var(--text);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+
+        .btn.small {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input[type="text"] {
+            background: #0d1120;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            width: 220px;
+        }
+
+        .bar {
+            height: 12px;
+            border-radius: 6px;
+            background: #0d1120;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .bar>div {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--cyan));
+        }
+
+        .screen {
+            animation: fadein 0.35s ease;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .avatarpick {
+            font-size: 34px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            background: var(--glass);
+        }
+
+        .avatarpick.sel {
+            border-color: var(--cyan);
+            box-shadow: 0 0 14px var(--cyan);
+        }
+
+        #map-nodes {
+            position: relative;
+            padding: 24px 0;
+        }
+
+        .node {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            margin: 10px 14px;
+            cursor: pointer;
+            text-align: center;
+            width: 96px;
+        }
+
+        .node .dot {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            border: 2px solid var(--border);
+            background: var(--glass);
+        }
+
+        .node.avail .dot {
+            border-color: var(--cyan);
+            box-shadow: 0 0 18px var(--cyan);
+            animation: pulse 1.6s infinite;
+        }
+
+        .node.done .dot {
+            border-color: var(--amber);
+            box-shadow: 0 0 12px var(--amber);
+        }
+
+        .node.locked {
+            cursor: default;
+        }
+
+        .node.locked .dot {
+            opacity: 0.35;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 10px var(--cyan);
+            }
+
+            50% {
+                box-shadow: 0 0 26px var(--cyan);
+            }
+        }
+
+        .zone {
+            margin-bottom: 18px;
+        }
+
+        .topicbar {
+            height: 8px;
+            border-radius: 5px;
+            background: #0d1120;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .topicbar>div {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--pink));
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 820px) {
+            .split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 170px;
+            background: #0a0d16;
+            color: #c9f7ff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 14.5px;
+            line-height: 1.5;
+            resize: vertical;
+            white-space: pre;
+        }
+
+        .gameworld {
+            position: relative;
+            background: radial-gradient(circle at 60% 20%, #141a2e, #0b0f19);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            min-height: 340px;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        .robot {
+            font-size: 60px;
+            transition: transform 0.4s;
+        }
+
+        .robot.hurt {
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-6px);
+            }
+
+            75% {
+                transform: translateX(6px);
+            }
+        }
+
+        .terminal {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 34px;
+            opacity: 0.5;
+            transition: 0.4s;
+        }
+
+        .terminal.on {
+            opacity: 1;
+            filter: drop-shadow(0 0 12px var(--green));
+        }
+
+        .hud {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .msgbox {
+            background: var(--glass);
+            border-left: 3px solid var(--cyan);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 6, 14, 0.85);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .stars {
+            font-size: 34px;
+            letter-spacing: 6px;
+        }
+
+        .token {
+            background: var(--glass);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 12.5px;
+        }
+
+        .token:hover {
+            background: rgba(0, 242, 254, 0.15);
+        }
+
+        .pill {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 13px;
+        }
+
+        .errbox {
+            border-left-color: var(--pink) !important;
+        }
+
+        .okbox {
+            border-left-color: var(--green) !important;
+        }
+
+        .chip {
+            display: inline-block;
+            background: rgba(0, 223, 162, 0.12);
+            border: 1px solid var(--green);
+            color: var(--green);
+            border-radius: 8px;
+            padding: 3px 8px;
+            margin: 2px;
+            font-size: 12px;
+        }
+
+        .statusline {
+            margin-top: 8px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .diffbadge {
+            font-size: 12px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--purple);
+            border-radius: 8px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="bggrid"></div>
+    <div id="app"></div>
+    <script>
+        /* ===== META ===== */
+        const AVATARS = ["🤖", "🧙", "🥷", "👩‍🚀"];
+        const RANKS = [
+            [0, "Python Novice"],
+            [150, "Code Explorer"],
+            [400, "Python Ranger"],
+            [800, "Logic Hacker"],
+            [1300, "Code Master"],
+            [2000, "Python Architect"],
+        ];
+        const ACHV = [
+            {
+                id: "first_code",
+                icon: "🏆",
+                name: "First Code",
+                desc: "Первый успешный запуск кода",
+            },
+            {
+                id: "no_hint",
+                icon: "🔥",
+                name: "No Hint",
+                desc: "Уровень пройден без подсказок",
+            },
+            {
+                id: "perfect",
+                icon: "⭐",
+                name: "Perfect Mission",
+                desc: "Получено 3 звезды за уровень",
+            },
+            {
+                id: "collector",
+                icon: "💎",
+                name: "Collector",
+                desc: "Накоплено 100 кристаллов",
+            },
+            {
+                id: "debugger",
+                icon: "🧠",
+                name: "Debugger",
+                desc: "Исправлена ошибка в коде",
+            },
+            {
+                id: "speed",
+                icon: "⚡",
+                name: "Speed Coder",
+                desc: "Уровень пройден с 1-й попытки",
+            },
+            {
+                id: "explorer",
+                icon: "🚀",
+                name: "Explorer",
+                desc: "Открыта новая зона карты",
+            },
+            {
+                id: "apprentice",
+                icon: "🐍",
+                name: "Python Apprentice",
+                desc: "Завершён Module 1",
+            },
+        ];
+        const MODULES = [
+            { id: 1, name: "Code City", icon: "🏙️" },
+            { id: 2, name: "Logic Station", icon: "🔐" },
+            { id: 3, name: "Loop Jungle", icon: "🌀" },
+            { id: 4, name: "List Fortress", icon: "🎒" },
+        ];
+        const DIFF = ["🟢 EASY", "🟡 NORMAL", "🔴 HARD"];
+        /* ===== LEVELS (36 missions, 4 modules) ===== */
+        const LEVELS = [
+            // MODULE 1 — PYTHON BASICS
+            {
+                id: 1,
+                module: 1,
+                difficulty: 0,
+                title: "FIRST COMMAND",
+                story:
+                    "Робот стоит у тёмного терминала. Нужна первая команда, чтобы разбудить систему.",
+                objective: 'Выведи на экран слово Hello: print("Hello")',
+                hints: [
+                    "Какая команда выводит текст на экран?",
+                    'Синтаксис: print("текст")',
+                    'Реши так: print("Hello")',
+                ],
+                blocks: ['print("Hello")'],
+                expected: ["Hello"],
+                reward: { xp: 100, coins: 25 },
+            },
+            {
+                id: 2,
+                module: 1,
+                difficulty: 0,
+                title: "ROBOT NAME",
+                story: "Терминал активен, но у робота ещё нет имени.",
+                objective: 'Создай переменную name со значением "Rex" и выведи её',
+                hints: [
+                    "Переменная хранит значение под именем",
+                    'name = "Rex", затем print(name)',
+                    'Реши так:\nname = "Rex"\nprint(name)',
+                ],
+                blocks: ['name = "Rex"', "print(name)"],
+                expected: ["Rex"],
+                reward: { xp: 100, coins: 25 },
+            },
+            {
+                id: 3,
+                module: 1,
+                difficulty: 0,
+                title: "ENERGY",
+                story: "Батарея робота пуста — нужно задать уровень энергии.",
+                objective: "Создай переменную energy со значением 100 и выведи её",
+                hints: [
+                    "Числа тоже можно хранить в переменных",
+                    "energy = 100, затем print(energy)",
+                    "Реши так:\nenergy = 100\nprint(energy)",
+                ],
+                blocks: ["energy = 100", "print(energy)"],
+                expected: ["100"],
+                reward: { xp: 110, coins: 28 },
+            },
+            {
+                id: 4,
+                module: 1,
+                difficulty: 1,
+                title: "ТОЧНЫЙ РАСЧЁТ ТОПЛИВА",
+                story: "Бак корабля измеряет топливо дробным числом.",
+                objective: "Создай fuel = 7.5 и выведи её",
+                hints: [
+                    "Дробные числа тоже переменные",
+                    "fuel = 7.5",
+                    "Реши так:\nfuel = 7.5\nprint(fuel)",
+                ],
+                blocks: ["fuel = 7.5", "print(fuel)"],
+                expected: ["7.5"],
+                reward: { xp: 110, coins: 28 },
+            },
+            {
+                id: 5,
+                module: 1,
+                difficulty: 1,
+                title: "РАДИОСИГНАЛ",
+                story: "С базы приходит текстовое сообщение.",
+                objective: 'Создай message = "SOS" и выведи его',
+                hints: [
+                    "Текст в кавычках — это строка (str)",
+                    'message = "SOS"',
+                    'Реши так:\nmessage = "SOS"\nprint(message)',
+                ],
+                blocks: ['message = "SOS"', "print(message)"],
+                expected: ["SOS"],
+                reward: { xp: 110, coins: 28 },
+            },
+            {
+                id: 6,
+                module: 1,
+                difficulty: 1,
+                title: "ПРИЁМ СИГНАЛА",
+                story:
+                    'Датчик присылает значение через input(). Сейчас он передаёт "42".',
+                objective: "Получи сигнал через code = input() и выведи code",
+                hints: [
+                    "input() получает значение извне",
+                    "code = input(), затем print(code)",
+                    "Реши так:\ncode = input()\nprint(code)",
+                ],
+                blocks: ["code = input()", "print(code)"],
+                expected: ["42"],
+                reward: { xp: 120, coins: 30 },
+                simInput: "42",
+            },
+            {
+                id: 7,
+                module: 1,
+                difficulty: 1,
+                title: "CALCULATOR",
+                story: "Роботу нужно посчитать сумму двух показателей.",
+                objective: "a=10, b=5. Посчитай result = a + b и выведи result",
+                hints: [
+                    "Арифметику можно хранить в переменной",
+                    "result = a + b",
+                    "Реши так:\na = 10\nb = 5\nresult = a + b\nprint(result)",
+                ],
+                blocks: ["a = 10", "b = 5", "result = a + b", "print(result)"],
+                expected: ["15"],
+                reward: { xp: 140, coins: 35 },
+            },
+            {
+                id: 8,
+                module: 1,
+                difficulty: 2,
+                title: "ФОРМУЛА ЭНЕРГИИ",
+                story: "Формула станции требует верный порядок действий.",
+                objective:
+                    "a=2, b=3, c=4. Посчитай result = (a + b) * c и выведи result",
+                hints: [
+                    "Скобки выполняются первыми",
+                    "result = (a + b) * c",
+                    "Реши так:\na = 2\nb = 3\nc = 4\nresult = (a + b) * c\nprint(result)",
+                ],
+                blocks: [
+                    "a = 2",
+                    "b = 3",
+                    "c = 4",
+                    "result = (a + b) * c",
+                    "print(result)",
+                ],
+                expected: ["20"],
+                reward: { xp: 150, coins: 38 },
+            },
+            {
+                id: 9,
+                module: 1,
+                difficulty: 2,
+                title: "ДАТЧИК ТЕМПЕРАТУРЫ",
+                story:
+                    'Датчик прислал температуру как текст "36". Нужно превратить её в число.',
+                objective: 'temp = int("36"), затем temp = temp + 4, выведи temp',
+                hints: [
+                    "int() превращает текст в число",
+                    'temp = int("36")',
+                    'Реши так:\ntemp = int("36")\ntemp = temp + 4\nprint(temp)',
+                ],
+                blocks: ['temp = int("36")', "temp = temp + 4", "print(temp)"],
+                expected: ["40"],
+                reward: { xp: 160, coins: 40 },
+            },
+            {
+                id: 10,
+                module: 1,
+                difficulty: 2,
+                title: "BOSS: ГЛАВНЫЙ ТЕРМИНАЛ",
+                story: "Финальный терминал зоны Code City ждёт полной активации.",
+                objective:
+                    'name="Rex", energy=50, bonus=25, total=energy+bonus. Выведи name и total',
+                hints: [
+                    "Собери всё вместе: имя и сумму",
+                    "total = energy + bonus",
+                    'Реши так:\nname = "Rex"\nenergy = 50\nbonus = 25\ntotal = energy + bonus\nprint(name)\nprint(total)',
+                ],
+                blocks: [
+                    'name = "Rex"',
+                    "energy = 50",
+                    "bonus = 25",
+                    "total = energy + bonus",
+                    "print(name)",
+                    "print(total)",
+                ],
+                expected: ["Rex", "75"],
+                reward: { xp: 220, coins: 65 },
+            },
+            // MODULE 2 — CONDITIONS & LOGIC
+            {
+                id: 11,
+                module: 2,
+                difficulty: 0,
+                title: "ДВЕРЬ БЛОКА",
+                story: "Дверь откроется, если энергии достаточно.",
+                objective: 'energy=80. Если energy>=50 — выведи "OPEN"',
+                hints: [
+                    "if проверяет условие",
+                    "if energy >= 50:",
+                    'Реши так:\nenergy = 80\nif energy >= 50:\n    print("OPEN")',
+                ],
+                blocks: ["energy = 80", "if energy >= 50:", '    print("OPEN")'],
+                expected: ["OPEN"],
+                reward: { xp: 130, coins: 30 },
+            },
+            {
+                id: 12,
+                module: 2,
+                difficulty: 0,
+                title: "ЩИТ АКТИВАЦИЯ",
+                story: "Щит включается только при достаточной энергии.",
+                objective:
+                    'energy=20. Если energy>=50 выведи "SHIELD_ON", иначе "SHIELD_OFF"',
+                hints: [
+                    "else выполняется, если условие ложно",
+                    "if ... : / else:",
+                    'Реши так:\nenergy = 20\nif energy >= 50:\n    print("SHIELD_ON")\nelse:\n    print("SHIELD_OFF")',
+                ],
+                blocks: [
+                    "energy = 20",
+                    "if energy >= 50:",
+                    '    print("SHIELD_ON")',
+                    "else:",
+                    '    print("SHIELD_OFF")',
+                ],
+                expected: ["SHIELD_OFF"],
+                reward: { xp: 130, coins: 30 },
+            },
+            {
+                id: 13,
+                module: 2,
+                difficulty: 0,
+                title: "ВЫБОР ПУТИ",
+                story: "Навигатор выбирает уровень сложности маршрута.",
+                objective:
+                    'level=2. Если 1 — "EASY", если 2 — "NORMAL", иначе "HARD"',
+                hints: [
+                    "elif проверяет ещё одно условие",
+                    "if ... elif ... else",
+                    'Реши так:\nlevel = 2\nif level == 1:\n    print("EASY")\nelif level == 2:\n    print("NORMAL")\nelse:\n    print("HARD")',
+                ],
+                blocks: [
+                    "level = 2",
+                    "if level == 1:",
+                    '    print("EASY")',
+                    "elif level == 2:",
+                    '    print("NORMAL")',
+                    "else:",
+                    '    print("HARD")',
+                ],
+                expected: ["NORMAL"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 14,
+                module: 2,
+                difficulty: 1,
+                title: "ПРОВЕРКА ВОЗРАСТА ДОСТУПА",
+                story: "Дверь пускает только совершеннолетних.",
+                objective: 'age=16. Если age>=18 — "ACCESS", иначе "DENIED"',
+                hints: [
+                    "Сравни age с 18",
+                    "if age >= 18: ... else: ...",
+                    'Реши так:\nage = 16\nif age >= 18:\n    print("ACCESS")\nelse:\n    print("DENIED")',
+                ],
+                blocks: [
+                    "age = 16",
+                    "if age >= 18:",
+                    '    print("ACCESS")',
+                    "else:",
+                    '    print("DENIED")',
+                ],
+                expected: ["DENIED"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 15,
+                module: 2,
+                difficulty: 1,
+                title: "ПАРОЛЬ ТЕРМИНАЛА",
+                story: "Терминал проверяет код доступа.",
+                objective: 'code=1234. Если code==1234 — "UNLOCKED", иначе "LOCKED"',
+                hints: [
+                    "== проверяет равенство",
+                    "if code == 1234:",
+                    'Реши так:\ncode = 1234\nif code == 1234:\n    print("UNLOCKED")\nelse:\n    print("LOCKED")',
+                ],
+                blocks: [
+                    "code = 1234",
+                    "if code == 1234:",
+                    '    print("UNLOCKED")',
+                    "else:",
+                    '    print("LOCKED")',
+                ],
+                expected: ["UNLOCKED"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 16,
+                module: 2,
+                difficulty: 1,
+                title: "ПОИСК ОШИБКИ",
+                story: "Система должна поднять тревогу при сбое.",
+                objective:
+                    'status="ERROR". Если status!="OK" — "ALERT", иначе "SAFE"',
+                hints: [
+                    '!= значит "не равно"',
+                    'if status != "OK":',
+                    'Реши так:\nstatus = "ERROR"\nif status != "OK":\n    print("ALERT")\nelse:\n    print("SAFE")',
+                ],
+                blocks: [
+                    'status = "ERROR"',
+                    'if status != "OK":',
+                    '    print("ALERT")',
+                    "else:",
+                    '    print("SAFE")',
+                ],
+                expected: ["ALERT"],
+                reward: { xp: 160, coins: 38 },
+            },
+            {
+                id: 17,
+                module: 2,
+                difficulty: 2,
+                title: "УРОВЕНЬ ОПАСНОСТИ",
+                story: "Сенсор фиксирует уровень опасности зоны.",
+                objective: 'danger=75. Если danger>70 — "EVACUATE", иначе "SAFE"',
+                hints: [
+                    '> значит "больше"',
+                    "if danger > 70:",
+                    'Реши так:\ndanger = 75\nif danger > 70:\n    print("EVACUATE")\nelse:\n    print("SAFE")',
+                ],
+                blocks: [
+                    "danger = 75",
+                    "if danger > 70:",
+                    '    print("EVACUATE")',
+                    "else:",
+                    '    print("SAFE")',
+                ],
+                expected: ["EVACUATE"],
+                reward: { xp: 170, coins: 40 },
+            },
+            {
+                id: 18,
+                module: 2,
+                difficulty: 2,
+                title: "НИЗКИЙ ЗАРЯД",
+                story: "Батарея робота критически разряжена.",
+                objective: 'battery=15. Если battery<20 — "CHARGE", иначе "OK"',
+                hints: [
+                    '< значит "меньше"',
+                    "if battery < 20:",
+                    'Реши так:\nbattery = 15\nif battery < 20:\n    print("CHARGE")\nelse:\n    print("OK")',
+                ],
+                blocks: [
+                    "battery = 15",
+                    "if battery < 20:",
+                    '    print("CHARGE")',
+                    "else:",
+                    '    print("OK")',
+                ],
+                expected: ["CHARGE"],
+                reward: { xp: 170, coins: 40 },
+            },
+            {
+                id: 19,
+                module: 2,
+                difficulty: 2,
+                title: "ДВОЙНАЯ ПРОВЕРКА",
+                story: "Запуск корабля требует одновременно ключа и питания.",
+                objective:
+                    'key=1, power=1. Если key==1 and power==1 — "LAUNCH", иначе "WAIT"',
+                hints: [
+                    "and требует выполнения обоих условий",
+                    "if key == 1 and power == 1:",
+                    'Реши так:\nkey = 1\npower = 1\nif key == 1 and power == 1:\n    print("LAUNCH")\nelse:\n    print("WAIT")',
+                ],
+                blocks: [
+                    "key = 1",
+                    "power = 1",
+                    "if key == 1 and power == 1:",
+                    '    print("LAUNCH")',
+                    "else:",
+                    '    print("WAIT")',
+                ],
+                expected: ["LAUNCH"],
+                reward: { xp: 190, coins: 45 },
+            },
+            {
+                id: 20,
+                module: 2,
+                difficulty: 2,
+                title: "BOSS: СИСТЕМА БЕЗОПАСНОСТИ",
+                story: "Главная система защиты станции анализирует щит и тревогу.",
+                objective:
+                    'shield=0, alarm=1. Если not shield and not alarm — "SAFE", если shield and not alarm — "SHIELDED", иначе "DANGER"',
+                hints: [
+                    "not переворачивает условие",
+                    "if not shield and not alarm: ... elif ...",
+                    'Реши так:\nshield = 0\nalarm = 1\nif not shield and not alarm:\n    print("SAFE")\nelif shield and not alarm:\n    print("SHIELDED")\nelse:\n    print("DANGER")',
+                ],
+                blocks: [
+                    "shield = 0",
+                    "alarm = 1",
+                    "if not shield and not alarm:",
+                    '    print("SAFE")',
+                    "elif shield and not alarm:",
+                    '    print("SHIELDED")',
+                    "else:",
+                    '    print("DANGER")',
+                ],
+                expected: ["DANGER"],
+                reward: { xp: 260, coins: 70 },
+            },
+            // MODULE 3 — LOOPS
+            {
+                id: 21,
+                module: 3,
+                difficulty: 0,
+                title: "ЗАПУСК ДВИГАТЕЛЯ",
+                story: "Двигатель набирает мощность постепенно.",
+                objective:
+                    "power=0. Пока power<3 — увеличивай power на 1 и выводи его",
+                hints: [
+                    "while повторяет действие, пока условие верно",
+                    "while power < 3: power = power + 1; print(power)",
+                    "Реши так:\npower = 0\nwhile power < 3:\n    power = power + 1\n    print(power)",
+                ],
+                blocks: [
+                    "power = 0",
+                    "while power < 3:",
+                    "    power = power + 1",
+                    "    print(power)",
+                ],
+                expected: ["1", "2", "3"],
+                reward: { xp: 140, coins: 32 },
+            },
+            {
+                id: 22,
+                module: 3,
+                difficulty: 0,
+                title: "ОБРАТНЫЙ ОТСЧЁТ",
+                story: "Запуск ракеты требует обратного отсчёта.",
+                objective: "n=3. Пока n>0 — выводи n и уменьшай на 1",
+                hints: [
+                    "Сначала print, потом уменьшение",
+                    "while n > 0: print(n); n = n - 1",
+                    "Реши так:\nn = 3\nwhile n > 0:\n    print(n)\n    n = n - 1",
+                ],
+                blocks: ["n = 3", "while n > 0:", "    print(n)", "    n = n - 1"],
+                expected: ["3", "2", "1"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 23,
+                module: 3,
+                difficulty: 0,
+                title: "ШАГИ РОБОТА",
+                story: "Робот должен сделать 5 шагов по коридору.",
+                objective: "Используй for i in range(5): и выводи i",
+                hints: [
+                    "range(5) даёт числа 0..4",
+                    "for i in range(5): print(i)",
+                    "Реши так:\nfor i in range(5):\n    print(i)",
+                ],
+                blocks: ["for i in range(5):", "    print(i)"],
+                expected: ["0", "1", "2", "3", "4"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 24,
+                module: 3,
+                difficulty: 1,
+                title: "СКАНИРОВАНИЕ ЗОН",
+                story: "Сканер должен проверить зоны с 1 по 3.",
+                objective: "Используй for i in range(1,4): и выводи i",
+                hints: [
+                    "range(1,4) даёт 1,2,3",
+                    "for i in range(1,4): print(i)",
+                    "Реши так:\nfor i in range(1,4):\n    print(i)",
+                ],
+                blocks: ["for i in range(1,4):", "    print(i)"],
+                expected: ["1", "2", "3"],
+                reward: { xp: 160, coins: 38 },
+            },
+            {
+                id: 25,
+                module: 3,
+                difficulty: 1,
+                title: "ДВИЖЕНИЕ ПО КОРИДОРУ",
+                story: "Каждый шаг увеличивает счётчик пройденного пути.",
+                objective: "steps=0. Повтори 4 раза: steps=steps+1 и выведи steps",
+                hints: [
+                    "Используй for i in range(4)",
+                    "steps = steps + 1 внутри цикла",
+                    "Реши так:\nsteps = 0\nfor i in range(4):\n    steps = steps + 1\n    print(steps)",
+                ],
+                blocks: [
+                    "steps = 0",
+                    "for i in range(4):",
+                    "    steps = steps + 1",
+                    "    print(steps)",
+                ],
+                expected: ["1", "2", "3", "4"],
+                reward: { xp: 170, coins: 40 },
+            },
+            {
+                id: 26,
+                module: 3,
+                difficulty: 1,
+                title: "СБОР КРИСТАЛЛОВ",
+                story: "Собери 5 кристаллов по одному за шаг.",
+                objective:
+                    "crystals=0. Повтори 5 раз: crystals=crystals+1 и выведи crystals",
+                hints: [
+                    "range(5) — пять повторов",
+                    "crystals = crystals + 1",
+                    "Реши так:\ncrystals = 0\nfor i in range(5):\n    crystals = crystals + 1\n    print(crystals)",
+                ],
+                blocks: [
+                    "crystals = 0",
+                    "for i in range(5):",
+                    "    crystals = crystals + 1",
+                    "    print(crystals)",
+                ],
+                expected: ["1", "2", "3", "4", "5"],
+                reward: { xp: 180, coins: 45 },
+            },
+            {
+                id: 27,
+                module: 3,
+                difficulty: 2,
+                title: "ПОДСЧЁТ ВРАГОВ",
+                story:
+                    "Радар видит 6 объектов, нужно посчитать опасные (после позиции 2).",
+                objective:
+                    "count=0. Для i in range(6): если i>2 — count=count+1. После цикла выведи count",
+                hints: [
+                    "Условие внутри цикла — комбинация for и if",
+                    "if i > 2: count = count + 1",
+                    "Реши так:\ncount = 0\nfor i in range(6):\n    if i > 2:\n        count = count + 1\nprint(count)",
+                ],
+                blocks: [
+                    "count = 0",
+                    "for i in range(6):",
+                    "    if i > 2:",
+                    "        count = count + 1",
+                    "print(count)",
+                ],
+                expected: ["3"],
+                reward: { xp: 220, coins: 55 },
+            },
+            {
+                id: 28,
+                module: 3,
+                difficulty: 2,
+                title: "BOSS: ЭНЕРГЕТИЧЕСКИЙ ЩИТ",
+                story: "Щит нужно зарядить до 50, не превышая лимит.",
+                objective:
+                    "energy=0. Для i in range(10): если energy<50 — energy=energy+10. После цикла выведи energy",
+                hints: [
+                    "Цикл проверяет условие на каждом шаге",
+                    "if energy < 50: energy = energy + 10",
+                    "Реши так:\nenergy = 0\nfor i in range(10):\n    if energy < 50:\n        energy = energy + 10\nprint(energy)",
+                ],
+                blocks: [
+                    "energy = 0",
+                    "for i in range(10):",
+                    "    if energy < 50:",
+                    "        energy = energy + 10",
+                    "print(energy)",
+                ],
+                expected: ["50"],
+                reward: { xp: 260, coins: 70 },
+            },
+            // MODULE 4 — LISTS
+            {
+                id: 29,
+                module: 4,
+                difficulty: 0,
+                title: "ИНВЕНТАРЬ",
+                story: "У героя есть рюкзак с предметами.",
+                objective: 'items = ["меч","щит","зелье"]. Выведи items',
+                hints: [
+                    "Список создаётся в квадратных скобках",
+                    'items = ["меч","щит","зелье"]',
+                    'Реши так:\nitems = ["меч", "щит", "зелье"]\nprint(items)',
+                ],
+                blocks: ['items = ["меч", "щит", "зелье"]', "print(items)"],
+                expected: ["[меч, щит, зелье]"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 30,
+                module: 4,
+                difficulty: 0,
+                title: "ВЫБОР ОРУЖИЯ",
+                story: "Нужно достать первое оружие из списка.",
+                objective:
+                    'items=["меч","лук","копьё"]. weapon=items[0]. Выведи weapon',
+                hints: [
+                    "Индекс [0] — первый элемент",
+                    "weapon = items[0]",
+                    'Реши так:\nitems = ["меч", "лук", "копьё"]\nweapon = items[0]\nprint(weapon)',
+                ],
+                blocks: [
+                    'items = ["меч", "лук", "копьё"]',
+                    "weapon = items[0]",
+                    "print(weapon)",
+                ],
+                expected: ["меч"],
+                reward: { xp: 150, coins: 35 },
+            },
+            {
+                id: 31,
+                module: 4,
+                difficulty: 1,
+                title: "ОБНОВЛЕНИЕ БРОНИ",
+                story: "Первую броню нужно заменить на среднюю.",
+                objective:
+                    'armor=["лёгкая","тяжёлая"]. armor[0]="средняя". Выведи armor',
+                hints: [
+                    "Можно менять элемент по индексу",
+                    'armor[0] = "средняя"',
+                    'Реши так:\narmor = ["лёгкая", "тяжёлая"]\narmor[0] = "средняя"\nprint(armor)',
+                ],
+                blocks: [
+                    'armor = ["лёгкая", "тяжёлая"]',
+                    'armor[0] = "средняя"',
+                    "print(armor)",
+                ],
+                expected: ["[средняя, тяжёлая]"],
+                reward: { xp: 170, coins: 40 },
+            },
+            {
+                id: 32,
+                module: 4,
+                difficulty: 1,
+                title: "НОВЫЙ ТРОФЕЙ",
+                story: "Робот нашёл кристалл — добавь его в рюкзак.",
+                objective: 'bag=["монета"]. bag.append("кристалл"). Выведи bag',
+                hints: [
+                    "append() добавляет элемент в конец",
+                    'bag.append("кристалл")',
+                    'Реши так:\nbag = ["монета"]\nbag.append("кристалл")\nprint(bag)',
+                ],
+                blocks: ['bag = ["монета"]', 'bag.append("кристалл")', "print(bag)"],
+                expected: ["[монета, кристалл]"],
+                reward: { xp: 170, coins: 40 },
+            },
+            {
+                id: 33,
+                module: 4,
+                difficulty: 1,
+                title: "ИЗБАВЛЕНИЕ ОТ ХЛАМА",
+                story: "В рюкзаке лишний мусор — нужно убрать его.",
+                objective: 'bag=["ключ","мусор","карта"]. Удали "мусор". Выведи bag',
+                hints: [
+                    "remove() удаляет элемент по значению",
+                    'bag.remove("мусор")',
+                    'Реши так:\nbag = ["ключ", "мусор", "карта"]\nbag.remove("мусор")\nprint(bag)',
+                ],
+                blocks: [
+                    'bag = ["ключ", "мусор", "карта"]',
+                    'bag.remove("мусор")',
+                    "print(bag)",
+                ],
+                expected: ["[ключ, карта]"],
+                reward: { xp: 180, coins: 42 },
+            },
+            {
+                id: 34,
+                module: 4,
+                difficulty: 2,
+                title: "ПОДСЧЁТ ПРЕДМЕТОВ",
+                story: "Нужно узнать, сколько всего предметов в рюкзаке.",
+                objective:
+                    'bag=["меч","щит","зелье","карта"]. count=len(bag). Выведи count',
+                hints: [
+                    "len() считает количество элементов",
+                    "count = len(bag)",
+                    'Реши так:\nbag = ["меч", "щит", "зелье", "карта"]\ncount = len(bag)\nprint(count)',
+                ],
+                blocks: [
+                    'bag = ["меч", "щит", "зелье", "карта"]',
+                    "count = len(bag)",
+                    "print(count)",
+                ],
+                expected: ["4"],
+                reward: { xp: 190, coins: 45 },
+            },
+            {
+                id: 35,
+                module: 4,
+                difficulty: 2,
+                title: "ПОИСК АРТЕФАКТА",
+                story: "Нужно проверить, есть ли артефакт среди трёх предметов.",
+                objective:
+                    'bag=["ключ","артефакт","карта"]. found=0. Для i in range(3): если bag[i]=="артефакт" — found=1. Выведи found',
+                hints: [
+                    "Перебирай список циклом for и индексами",
+                    'if bag[i] == "артефакт": found = 1',
+                    'Реши так:\nbag = ["ключ", "артефакт", "карта"]\nfound = 0\nfor i in range(3):\n    if bag[i] == "артефакт":\n        found = 1\nprint(found)',
+                ],
+                blocks: [
+                    'bag = ["ключ", "артефакт", "карта"]',
+                    "found = 0",
+                    "for i in range(3):",
+                    '    if bag[i] == "артефакт":',
+                    "        found = 1",
+                    "print(found)",
+                ],
+                expected: ["1"],
+                reward: { xp: 230, coins: 58 },
+            },
+            {
+                id: 36,
+                module: 4,
+                difficulty: 2,
+                title: "BOSS: ФИНАЛЬНЫЙ РЮКЗАК",
+                story:
+                    "Последнее испытание List Fortress — собери рюкзак из пяти предметов циклом.",
+                objective: "bag=[]. Для i in range(5): bag.append(i). Выведи bag",
+                hints: [
+                    "append() внутри цикла добавляет элементы один за другим",
+                    "bag.append(i)",
+                    "Реши так:\nbag = []\nfor i in range(5):\n    bag.append(i)\nprint(bag)",
+                ],
+                blocks: [
+                    "bag = []",
+                    "for i in range(5):",
+                    "    bag.append(i)",
+                    "print(bag)",
+                ],
+                expected: ["[0, 1, 2, 3, 4]"],
+                reward: { xp: 300, coins: 90 },
+            },
+        ];
+
+        /* ===== SAVE STATE ===== */
+        function defaultState() {
+            return {
+                player: { name: "", avatar: "🤖" },
+                screen: "onboarding",
+                xp: 0,
+                coins: 0,
+                completed: {},
+                achievements: {},
+                soundOn: true,
+                curLevel: 1,
+                hints: 0,
+                attempts: 0,
+                combo: 0,
+                moduleBonus: {},
+            };
+        }
+        let S = Object.assign(defaultState(), load() || {});
+        function save() {
+            localStorage.setItem("pyquest_save", JSON.stringify(S));
+        }
+        function load() {
+            try {
+                const d = localStorage.getItem("pyquest_save");
+                return d ? JSON.parse(d) : null;
+            } catch (e) {
+                return null;
+            }
+        }
+        function rankFor(xp) {
+            let r = RANKS[0][1];
+            for (const [t, n] of RANKS) {
+                if (xp >= t) r = n;
+            }
+            return r;
+        }
+        function levelNumFor(xp) {
+            let n = 1;
+            for (let i = 0; i < RANKS.length; i++) {
+                if (xp >= RANKS[i][0]) n = i + 1;
+            }
+            return n;
+        }
+
+        /* ===== SOUND ===== */
+        let actx = null;
+        function beep(freq, dur, type = "sine") {
+            if (!S.soundOn) return;
+            try {
+                actx =
+                    actx || new (window.AudioContext || window.webkitAudioContext)();
+                const o = actx.createOscillator(),
+                    g = actx.createGain();
+                o.type = type;
+                o.frequency.value = freq;
+                o.connect(g);
+                g.connect(actx.destination);
+                g.gain.setValueAtTime(0.08, actx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+                o.start();
+                o.stop(actx.currentTime + dur);
+            } catch (e) { }
+        }
+        const sfx = {
+            click: () => beep(440, 0.06),
+            success: () => {
+                beep(660, 0.12);
+                setTimeout(() => beep(880, 0.18), 100);
+            },
+            error: () => beep(160, 0.2, "sawtooth"),
+            unlock: () => {
+                beep(520, 0.1);
+                setTimeout(() => beep(780, 0.2), 120);
+            },
+        };
+
+        /* ===== PYTHON-LIKE INTERPRETER (safe, no eval) ===== */
+        function tokenizeExpr(s) {
+            return (
+                s.match(
+                    /"[^"]*"|'[^']*'|\d+\.\d+|\d+|[A-Za-z_]\w*|[+\-*/,\[\]()]/g,
+                ) || []
+            );
+        }
+        class ExprParser {
+            constructor(tokens, vars, simInput) {
+                this.t = tokens;
+                this.i = 0;
+                this.vars = vars;
+                this.simInput = simInput;
+            }
+            peek() {
+                return this.t[this.i];
+            }
+            next() {
+                return this.t[this.i++];
+            }
+            parseExpr() {
+                let v = this.parseTerm();
+                while (this.peek() === "+" || this.peek() === "-") {
+                    const op = this.next();
+                    const r = this.parseTerm();
+                    v =
+                        op === "+"
+                            ? typeof v === "string" || typeof r === "string"
+                                ? String(v) + String(r)
+                                : v + r
+                            : v - r;
+                }
+                return v;
+            }
+            parseTerm() {
+                let v = this.parseFactor();
+                while (this.peek() === "*" || this.peek() === "/") {
+                    const op = this.next();
+                    const r = this.parseFactor();
+                    v = op === "*" ? v * r : v / r;
+                }
+                return v;
+            }
+            parseFactor() {
+                const t = this.next();
+                if (t === undefined) throw { msg: "Неожиданный конец выражения" };
+                if (/^".*"$/.test(t) || /^'.*'$/.test(t)) return t.slice(1, -1);
+                if (/^\d+\.\d+$/.test(t)) return parseFloat(t);
+                if (/^\d+$/.test(t)) return parseInt(t);
+                if (t === "[") {
+                    const arr = [];
+                    if (this.peek() !== "]") {
+                        arr.push(this.parseExpr());
+                        while (this.peek() === ",") {
+                            this.next();
+                            arr.push(this.parseExpr());
+                        }
+                    }
+                    this.next();
+                    return arr;
+                }
+                if (t === "(") {
+                    const v = this.parseExpr();
+                    this.next();
+                    return v;
+                }
+                if (/^[A-Za-z_]\w*$/.test(t)) {
+                    if (t === "len" && this.peek() === "(") {
+                        this.next();
+                        const v = this.parseExpr();
+                        this.next();
+                        if (!Array.isArray(v) && typeof v !== "string")
+                            throw { msg: "len() применим к списку или строке" };
+                        return v.length;
+                    }
+                    if (t === "int" && this.peek() === "(") {
+                        this.next();
+                        const v = this.parseExpr();
+                        this.next();
+                        return parseInt(v);
+                    }
+                    if (t === "float" && this.peek() === "(") {
+                        this.next();
+                        const v = this.parseExpr();
+                        this.next();
+                        return parseFloat(v);
+                    }
+                    if (t === "str" && this.peek() === "(") {
+                        this.next();
+                        const v = this.parseExpr();
+                        this.next();
+                        return String(v);
+                    }
+                    if (t === "input" && this.peek() === "(") {
+                        this.next();
+                        this.next();
+                        return this.simInput !== undefined ? this.simInput : "";
+                    }
+                    if (!Object.prototype.hasOwnProperty.call(this.vars, t))
+                        throw { msg: 'Переменная "' + t + '" ещё не определена' };
+                    let val = this.vars[t];
+                    if (this.peek() === "[") {
+                        this.next();
+                        const idx = this.parseExpr();
+                        this.next();
+                        if (!Array.isArray(val) && typeof val !== "string")
+                            throw { msg: '"' + t + '" не является списком' };
+                        val = val[idx];
+                    }
+                    return val;
+                }
+                throw { msg: "Не удалось распознать: " + t };
+            }
+        }
+        function evalExpr(s, vars, simInput) {
+            return new ExprParser(tokenizeExpr(s), vars, simInput).parseExpr();
+        }
+        function evalCond(expr, vars, simInput) {
+            expr = expr.trim();
+            let p = splitTopLevel(expr, " or ");
+            if (p.length > 1) return p.some((x) => evalCond(x, vars, simInput));
+            p = splitTopLevel(expr, " and ");
+            if (p.length > 1) return p.every((x) => evalCond(x, vars, simInput));
+            if (/^not\s+/.test(expr))
+                return !evalCond(expr.replace(/^not\s+/, ""), vars, simInput);
+            const m = expr.match(/^(.+?)(==|!=|>=|<=|>|<)(.+)$/);
+            if (m) {
+                const a = evalExpr(m[1], vars, simInput),
+                    b = evalExpr(m[3], vars, simInput),
+                    op = m[2];
+                if (op === "==") return a == b;
+                if (op === "!=") return a != b;
+                if (op === ">") return a > b;
+                if (op === "<") return a < b;
+                if (op === ">=") return a >= b;
+                return a <= b;
+            }
+            const v = evalExpr(expr, vars, simInput);
+            return !!v && v !== "" && v !== 0;
+        }
+        function splitTopLevel(s, sep) {
+            let depth = 0,
+                parts = [],
+                cur = "";
+            for (let i = 0; i < s.length; i++) {
+                if (s[i] === "[" || s[i] === "(") depth++;
+                if (s[i] === "]" || s[i] === ")") depth--;
+                if (depth === 0 && s.slice(i, i + sep.length) === sep) {
+                    parts.push(cur);
+                    cur = "";
+                    i += sep.length - 1;
+                    continue;
+                }
+                cur += s[i];
+            }
+            parts.push(cur);
+            return parts;
+        }
+        function getIndent(l) {
+            return l.match(/^[ \t]*/)[0].replace(/\t/g, "    ").length;
+        }
+        function blockEnd(lines, headerIdx, end, baseIndent) {
+            let j = headerIdx + 1;
+            while (j < end && lines[j].indent > baseIndent) j++;
+            return j;
+        }
+        function execBlock(lines, start, end, vars, output, events, simInput) {
+            let i = start;
+            if (i >= end) return i;
+            const baseIndent = lines[start].indent;
+            while (i < end) {
+                const ln = lines[i];
+                if (ln.indent !== baseIndent) {
+                    i++;
+                    continue;
+                }
+                const text = ln.text;
+                try {
+                    let m;
+                    if ((m = text.match(/^print\((.*)\)$/))) {
+                        const val = evalExpr(m[1], vars, simInput);
+                        output.push(
+                            Array.isArray(val) ? "[" + val.join(", ") + "]" : String(val),
+                        );
+                        events.push({ type: "print", value: val });
+                        i++;
+                    } else if (/^if\s+.+:$/.test(text)) {
+                        i = execIfChain(
+                            lines,
+                            i,
+                            end,
+                            baseIndent,
+                            vars,
+                            output,
+                            events,
+                            simInput,
+                        );
+                    } else if ((m = text.match(/^while\s+(.+):$/))) {
+                        const bEnd = blockEnd(lines, i, end, baseIndent);
+                        let guard = 0;
+                        while (evalCond(m[1], vars, simInput) && guard < 1000) {
+                            execBlock(lines, i + 1, bEnd, vars, output, events, simInput);
+                            guard++;
+                        }
+                        if (guard >= 1000)
+                            throw { msg: "Похоже на бесконечный цикл (while)" };
+                        i = bEnd;
+                    } else if (
+                        (m = text.match(/^for\s+(\w+)\s+in\s+range\((.+)\):$/))
+                    ) {
+                        const args = m[2]
+                            .split(",")
+                            .map((s) => evalExpr(s.trim(), vars, simInput));
+                        let st = 0,
+                            stop,
+                            step = 1;
+                        if (args.length === 1) {
+                            stop = args[0];
+                        } else if (args.length === 2) {
+                            st = args[0];
+                            stop = args[1];
+                        } else {
+                            st = args[0];
+                            stop = args[1];
+                            step = args[2];
+                        }
+                        const bEnd = blockEnd(lines, i, end, baseIndent);
+                        let guard = 0;
+                        for (let v = st; step > 0 ? v < stop : v > stop; v += step) {
+                            vars[m[1]] = v;
+                            execBlock(lines, i + 1, bEnd, vars, output, events, simInput);
+                            guard++;
+                            if (guard > 2000) throw { msg: "Слишком много итераций (for)" };
+                        }
+                        i = bEnd;
+                    } else if ((m = text.match(/^(\w+)\.append\((.+)\)$/))) {
+                        if (!Array.isArray(vars[m[1]]))
+                            throw { msg: '"' + m[1] + '" не является списком' };
+                        vars[m[1]].push(evalExpr(m[2], vars, simInput));
+                        events.push({ type: "append", name: m[1] });
+                        i++;
+                    } else if ((m = text.match(/^(\w+)\.remove\((.+)\)$/))) {
+                        if (!Array.isArray(vars[m[1]]))
+                            throw { msg: '"' + m[1] + '" не является списком' };
+                        const val = evalExpr(m[2], vars, simInput);
+                        const idx = vars[m[1]].indexOf(val);
+                        if (idx === -1)
+                            throw { msg: 'Значение не найдено в списке "' + m[1] + '"' };
+                        vars[m[1]].splice(idx, 1);
+                        events.push({ type: "remove", name: m[1] });
+                        i++;
+                    } else if ((m = text.match(/^(\w+)\[(.+)\]\s*=\s*(.+)$/))) {
+                        if (!Array.isArray(vars[m[1]]))
+                            throw { msg: '"' + m[1] + '" не является списком' };
+                        const idx = evalExpr(m[2], vars, simInput);
+                        vars[m[1]][idx] = evalExpr(m[3], vars, simInput);
+                        events.push({ type: "assign", name: m[1] });
+                        i++;
+                    } else if ((m = text.match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/))) {
+                        const val = evalExpr(m[2], vars, simInput);
+                        vars[m[1]] = val;
+                        events.push({ type: "assign", name: m[1], value: val });
+                        i++;
+                    } else {
+                        throw { msg: "Команда не распознана: " + text };
+                    }
+                } catch (e) {
+                    throw { msg: e.msg || "Ошибка выполнения", line: i + 1 };
+                }
+            }
+            return i;
+        }
+        function execIfChain(
+            lines,
+            i,
+            end,
+            baseIndent,
+            vars,
+            output,
+            events,
+            simInput,
+        ) {
+            let condMet = false,
+                idx = i;
+            while (idx < end) {
+                const ln = lines[idx];
+                if (ln.indent !== baseIndent) break;
+                let m;
+                if (
+                    (m = ln.text.match(/^if\s+(.+):$/)) ||
+                    (m = ln.text.match(/^elif\s+(.+):$/))
+                ) {
+                    const bEnd = blockEnd(lines, idx, end, baseIndent);
+                    if (!condMet && evalCond(m[1], vars, simInput)) {
+                        execBlock(lines, idx + 1, bEnd, vars, output, events, simInput);
+                        condMet = true;
+                    }
+                    idx = bEnd;
+                    continue;
+                } else if (ln.text === "else:") {
+                    const bEnd = blockEnd(lines, idx, end, baseIndent);
+                    if (!condMet) {
+                        execBlock(lines, idx + 1, bEnd, vars, output, events, simInput);
+                        condMet = true;
+                    }
+                    idx = bEnd;
+                    break;
+                } else break;
+            }
+            return idx;
+        }
+        function runPython(code, simInput) {
+            const raw = code
+                .split("\n")
+                .filter((l) => l.trim().length && !l.trim().startsWith("#"));
+            const lines = raw.map((l) => ({
+                indent: getIndent(l),
+                text: l.trim(),
+            }));
+            const vars = {},
+                output = [],
+                events = [];
+            if (lines.length)
+                execBlock(lines, 0, lines.length, vars, output, events, simInput);
+            return { vars, output, events };
+        }
+
+        /* ===== RENDER ===== */
+        const app = document.getElementById("app");
+        function render() {
+            if (S.screen === "onboarding") return renderOnboarding();
+            if (S.screen === "home") return renderHome();
+            if (S.screen === "map") return renderMap();
+            if (S.screen === "level") return renderLevel();
+        }
+        function topHud() {
+            return `<div class="row" style="justify-content:space-between;margin-bottom:14px">
+  <div class="row"><span style="font-size:24px">${S.player.avatar}</span>
+   <div><b>${S.player.name}</b><div class="pill">${rankFor(S.xp)} · Lv.${levelNumFor(S.xp)}</div></div></div>
+  <div class="row">
+   <span class="pill">✨ ${S.xp} XP</span><span class="pill">💎 ${S.coins}</span>
+   <button class="btn small secondary" onclick="toggleSound()">${S.soundOn ? "🔊" : "🔇"}</button>
+  </div></div>`;
+        }
+        function renderOnboarding() {
+            app.innerHTML = `<div class="screen center" style="min-height:90vh">
+ <div class="card" style="max-width:460px;text-align:center">
+  <h1 class="glow" style="color:var(--cyan)">WELCOME, CODER!</h1>
+  <p style="margin:12px 0 18px;opacity:.8">Добро пожаловать в PYTHON QUEST — игровую вселенную, где ты изучаешь Python в реальных миссиях.</p>
+  <p style="margin-bottom:8px">Как тебя зовут?</p>
+  <input id="nameinp" type="text" placeholder="Bobur" style="margin-bottom:16px">
+  <p style="margin-bottom:8px">Выбери персонажа:</p>
+  <div class="row" style="justify-content:center;margin-bottom:20px" id="avpick">
+   ${AVATARS.map((a) => `<div class="avatarpick ${a === S.player.avatar ? "sel" : ""}" data-av="${a}" onclick="pickAv(this)">${a}</div>`).join("")}
+  </div>
+  <button class="btn" onclick="startAdventure()">🚀 START ADVENTURE</button>
+ </div></div>`;
+        }
+        function pickAv(el) {
+            document
+                .querySelectorAll(".avatarpick")
+                .forEach((e) => e.classList.remove("sel"));
+            el.classList.add("sel");
+            S.player.avatar = el.dataset.av;
+            sfx.click();
+        }
+        function startAdventure() {
+            const n = document.getElementById("nameinp").value.trim();
+            S.player.name = n || "Coder";
+            S.screen = "home";
+            save();
+            sfx.unlock();
+            render();
+        }
+        function renderHome() {
+            const done = Object.keys(S.completed).length;
+            app.innerHTML = `<div class="screen">${topHud()}
+ <div class="card" style="text-align:center;padding:36px">
+  <div style="font-size:70px">${S.player.avatar}</div>
+  <h2 style="margin-top:8px">${S.player.name}</h2>
+  <p class="pill" style="display:inline-block;margin:8px 0">${rankFor(S.xp)}</p>
+  <div class="bar" style="max-width:360px;margin:14px auto"><div style="width:${Math.min(100, (done / LEVELS.length) * 100)}%"></div></div>
+  <p style="opacity:.75;margin-bottom:20px">Прогресс курса: ${done}/${LEVELS.length} миссий</p>
+  <div class="row center">
+   <button class="btn" onclick="goContinue()">▶ Продолжить игру</button>
+   <button class="btn secondary" onclick="S.screen='map';save();render()">🌌 Карта мира</button>
+  </div>
+ </div>
+ <div class="card" style="margin-top:16px">
+  <h3 style="color:var(--amber)">🏆 Достижения (${Object.keys(S.achievements).length}/${ACHV.length})</h3>
+  <div class="row" style="margin-top:10px">
+   ${ACHV.map((a) => `<div class="pill" title="${a.desc}" style="opacity:${S.achievements[a.id] ? 1 : 0.3}">${a.icon} ${a.name}</div>`).join("")}
+  </div>
+ </div>
+ <div class="row" style="justify-content:center;margin-top:16px">
+  <button class="btn secondary small" onclick="resetProgress()">Reset Progress</button>
+ </div>
+ </div>`;
+        }
+        function goContinue() {
+            let next = LEVELS.find((l) => !S.completed[l.id] && canPlay(l.id));
+            S.curLevel = next
+                ? next.id
+                : LEVELS.find((l) => !S.completed[l.id])?.id ||
+                LEVELS[LEVELS.length - 1].id;
+            S.screen = "level";
+            S.hints = 0;
+            S.attempts = 0;
+            curCode = "";
+            curVis = {};
+            save();
+            render();
+        }
+        function resetProgress() {
+            if (confirm("Сбросить весь прогресс? Это действие нельзя отменить.")) {
+                localStorage.removeItem("pyquest_save");
+                S = defaultState();
+                render();
+            }
+        }
+        function toggleSound() {
+            S.soundOn = !S.soundOn;
+            save();
+            render();
+        }
+
+        /* module/level unlock logic */
+        function moduleLevels(mid) {
+            return LEVELS.filter((l) => l.module === mid);
+        }
+        function moduleComplete(mid) {
+            return moduleLevels(mid).every((l) => S.completed[l.id] !== undefined);
+        }
+        function canPlay(id) {
+            const lv = LEVELS.find((l) => l.id === id);
+            if (S.completed[id] !== undefined) return true; // replay
+            if (lv.module > 1 && !moduleComplete(lv.module - 1)) return false;
+            const arr = moduleLevels(lv.module);
+            const idx = arr.findIndex((l) => l.id === id);
+            if (idx === 0) return true;
+            return S.completed[arr[idx - 1].id] !== undefined;
+        }
+        function renderMap() {
+            app.innerHTML = `<div class="screen">${topHud()}
+ <div class="card">
+  <h2 class="glow" style="color:var(--purple)">🌌 PYTHON UNIVERSE</h2>
+  ${MODULES.map((mod, mi) => {
+                const lv = moduleLevels(mod.id);
+                const doneCnt = lv.filter((l) => S.completed[l.id] !== undefined).length;
+                const starSum = lv.reduce((s, l) => s + (S.completed[l.id] || 0), 0);
+                const unlocked = mod.id === 1 || moduleComplete(mod.id - 1);
+                return `<div class="zone">
+     <div class="row" style="justify-content:space-between">
+      <h3 style="color:var(--cyan);margin-top:14px">${mi + 1}. ${mod.icon} ${mod.name} ${unlocked ? "" : "🔒"}</h3>
+      <div class="topicbar"><div style="width:${(doneCnt / lv.length) * 100}%"></div></div>
+     </div>
+     <p style="font-size:12px;opacity:.7;margin-bottom:6px">${doneCnt}/${lv.length} · ⭐ ${starSum}/${lv.length * 3}</p>
+     <div id="map-nodes">
+      ${unlocked
+                        ? lv
+                            .map((l) => {
+                                const state =
+                                    S.completed[l.id] !== undefined
+                                        ? "done"
+                                        : canPlay(l.id)
+                                            ? "avail"
+                                            : "locked";
+                                const stars =
+                                    S.completed[l.id] !== undefined
+                                        ? "⭐".repeat(S.completed[l.id])
+                                        : "";
+                                return `<div class="node ${state}" onclick="openLevel(${l.id})">
+         <div class="dot">${state === "locked" ? "🔒" : state === "done" ? "⭐" : "▶"}</div>
+         <div style="font-size:11px">${l.title}</div><div style="font-size:11px">${stars}</div></div>`;
+                            })
+                            .join("")
+                        : `<p style="opacity:.5;font-size:13px">Заверши предыдущую зону, чтобы открыть эту.</p>`
+                    }
+     </div></div>`;
+            }).join("")}
+  <button class="btn secondary" onclick="S.screen='home';save();render()" style="margin-top:10px">← Профиль</button>
+ </div></div>`;
+        }
+        function openLevel(id) {
+            if (!canPlay(id)) {
+                sfx.error();
+                return;
+            }
+            S.curLevel = id;
+            S.screen = "level";
+            S.hints = 0;
+            S.attempts = 0;
+            curCode = "";
+            curVis = {};
+            save();
+            render();
+        }
+
+        /* ---- LEVEL ---- */
+        let curCode = "",
+            curVis = {},
+            curMode = "blocks";
+        function renderLevel() {
+            const lv = LEVELS.find((l) => l.id === S.curLevel);
+            app.innerHTML = `<div class="screen">${topHud()}
+ <div class="card" style="margin-bottom:10px">
+  <div class="row" style="justify-content:space-between">
+   <h2 style="color:var(--cyan)">⚡ МИССИЯ: ${lv.title}</h2>
+   <div class="row"><span class="pill diffbadge">${DIFF[lv.difficulty]}</span>
+    <button class="btn secondary small" onclick="backToMap()">← Карта</button></div>
+  </div>
+  <p style="opacity:.85;margin-top:6px">${lv.story}</p>
+  <div class="msgbox">🤖 <b>NOVA:</b> <span id="novaline">${lv.objective}</span></div>
+ </div>
+ <div class="split">
+  <div class="card">
+   <div class="row" style="justify-content:space-between">
+    <div class="row"><button class="btn small ${curMode !== "code" ? "" : "secondary"}" onclick="setMode('blocks')">🧩 BLOCKS</button>
+    <div class="row"><button class="btn small ${curMode !== "code" ? "" : "secondary"}" onclick="setMode('blocks')">🧩 BLOCKS</button>
+     <button class="btn small ${curMode === "code" ? "" : "secondary"}" onclick="setMode('code')">⌨ CODE</button></div>
+    <button class="btn small secondary" onclick="showHint()">💡 Подсказка (${S.hints}/3)</button>
+   </div>
+   <div id="blockbar" class="row" style="margin:12px 0">
+    ${curMode === "code" ? "" : lv.blocks.map((b) => `<button class="token" onclick="addBlock(this)" data-b="${encodeURIComponent(b)}">${b.replace(/</g, "&lt;")}</button>`).join("")}
+   </div>
+   <textarea id="codearea" spellcheck="false" placeholder="# напиши Python-код здесь">${curCode}</textarea>
+   <div class="row" style="margin-top:10px;justify-content:space-between">
+    <button class="btn secondary small" onclick="clearCode()">🗑 Очистить</button>
+    <button class="btn" onclick="runCode()">▶ RUN (Ctrl+Enter)</button>
+   </div>
+   <div id="feedback"></div>
+  </div>
+  <div class="gameworld" id="gameworld">
+   <div class="hud">
+    <span class="pill">${curVis.bar != null ? "⚡ " + curVis.bar : ""}</span>
+    <span class="pill">${curVis.name ? "🏷 " + curVis.name : ""}</span>
+   </div>
+   <div class="center" style="height:180px"><div class="robot" id="robotEl">🤖</div></div>
+   ${curVis.status ? `<div class="statusline" style="color:${statusColor(curVis.status)}">${curVis.status}</div>` : ""}
+   ${curVis.list ? `<div style="margin-top:8px">${curVis.list.map((x) => `<span class="chip">${x}</span>`).join("")}</div>` : ""}
+   <div class="terminal ${curVis.terminal ? "on" : ""}" id="termEl">🖥</div>
+  </div>
+ </div>
+ </div>`;
+            const ta = document.getElementById("codearea");
+            ta.addEventListener("keydown", (e) => {
+                if (e.key === "Tab") {
+                    e.preventDefault();
+                    const s = ta.selectionStart;
+                    ta.value =
+                        ta.value.slice(0, s) + "    " + ta.value.slice(ta.selectionEnd);
+                    ta.selectionStart = ta.selectionEnd = s + 4;
+                    curCode = ta.value;
+                }
+                if (e.ctrlKey && e.key === "Enter") {
+                    e.preventDefault();
+                    runCode();
+                }
+            });
+            ta.addEventListener("input", () => {
+                curCode = ta.value;
+            });
+        }
+        function statusColor(s) {
+            if (/OPEN|UNLOCK|SAFE|LAUNCH|ACCESS|SHIELD_ON|SHIELDED/.test(s))
+                return "var(--green)";
+            if (
+                /DENIED|LOCKED|ALERT|EVACUATE|CHARGE|WAIT|DANGER|SHIELD_OFF/.test(s)
+            )
+                return "var(--pink)";
+            return "var(--cyan)";
+        }
+        function setMode(m) {
+            curMode = m;
+            sfx.click();
+            render();
+        }
+        function addBlock(el) {
+            const b = decodeURIComponent(el.dataset.b);
+            const ta = document.getElementById("codearea");
+            ta.value =
+                (ta.value.replace(/\n+$/, "")
+                    ? ta.value.replace(/\n+$/, "") + "\n"
+                    : "") + b;
+            curCode = ta.value;
+            sfx.click();
+        }
+        function clearCode() {
+            curCode = "";
+            document.getElementById("codearea").value = "";
+            sfx.click();
+        }
+        function backToMap() {
+            curCode = "";
+            curVis = {};
+            curMode = "blocks";
+            S.screen = "map";
+            save();
+            render();
+        }
+        function showHint() {
+            const lv = LEVELS.find((l) => l.id === S.curLevel);
+            if (S.hints >= 3) {
+                alertMsg("Все подсказки уже показаны.", "ok");
+                return;
+            }
+            S.hints++;
+            save();
+            const h = lv.hints[S.hints - 1];
+            document.getElementById("novaline").innerText = h;
+            alertMsg(
+                "💡 Подсказка " + S.hints + "/3: " + h.replace(/\n/g, "<br>"),
+                "ok",
+            );
+            sfx.click();
+        }
+        function alertMsg(msg, type) {
+            const fb = document.getElementById("feedback");
+            fb.innerHTML = `<div class="msgbox ${type === "err" ? "errbox" : "okbox"}">${msg}</div>`;
+        }
+        function updateVisFromResult(result) {
+            curVis.terminal = result.output.length > 0;
+            curVis.list = null;
+            curVis.bar = null;
+            curVis.name = curVis.name || null;
+            for (const k in result.vars) {
+                const v = result.vars[k];
+                if (Array.isArray(v)) curVis.list = v;
+                if (
+                    /energy|total|fuel|power|score|count|steps|crystals/i.test(k) &&
+                    typeof v === "number"
+                )
+                    curVis.bar = v;
+                if (k === "name" && typeof v === "string") curVis.name = v;
+            }
+            curVis.status = result.output.length
+                ? result.output[result.output.length - 1]
+                : null;
+        }
+        function runCode() {
+            const lv = LEVELS.find((l) => l.id === S.curLevel);
+            const code = document.getElementById("codearea").value;
+            S.attempts++;
+            let result;
+            try {
+                result = runPython(code, lv.simInput);
+            } catch (e) {
+                sfx.error();
+                if (!S.achievements["debugger"]) unlockAchv("debugger");
+                document.getElementById("robotEl").classList.add("hurt");
+                setTimeout(
+                    () => document.getElementById("robotEl")?.classList.remove("hurt"),
+                    300,
+                );
+                const stage = Math.min(S.attempts, 4);
+                const progressive = [
+                    "Почти получилось! Проверь код ещё раз.",
+                    "Кажется, проблема связана со строкой " + (e.line || "?") + ".",
+                    "Посмотри внимательно на переменные, отступы и скобки.",
+                    "Подробности: " + e.msg + " (строка " + (e.line || "?") + ")",
+                ];
+                alertMsg("⚠️ " + progressive[stage - 1], "err");
+                return;
+            }
+            updateVisFromResult(result);
+            const match =
+                JSON.stringify(result.output) === JSON.stringify(lv.expected);
+            if (!match) {
+                sfx.error();
+                alertMsg(
+                    "⚠️ Код выполнился, но результат другой. Ожидалось: " +
+                    lv.expected.join(", ") +
+                    ". Получено: " +
+                    (result.output.join(", ") || "ничего"),
+                    "err",
+                );
+                render();
+                return;
+            }
+            sfx.success();
+            const isReplay = S.completed[lv.id] !== undefined;
+            if (!S.achievements["first_code"]) unlockAchv("first_code");
+            if (S.hints === 0 && !isReplay) unlockAchv("no_hint");
+            if (S.attempts === 1 && !isReplay) unlockAchv("speed");
+            let stars = S.hints === 0 ? 3 : S.hints <= 2 ? 2 : 1;
+            if (stars === 3) unlockAchv("perfect");
+            let reward, coinReward;
+            if (!isReplay) {
+                reward =
+                    stars === 3
+                        ? lv.reward.xp
+                        : stars === 2
+                            ? Math.round(lv.reward.xp * 0.75)
+                            : Math.round(lv.reward.xp * 0.5);
+                coinReward =
+                    stars === 3
+                        ? lv.reward.coins
+                        : stars === 2
+                            ? Math.round(lv.reward.coins * 0.75)
+                            : Math.round(lv.reward.coins * 0.5);
+                S.combo = stars === 3 ? S.combo + 1 : 0;
+            } else {
+                reward = 0;
+                coinReward = Math.round(lv.reward.coins * 0.2); // limited replay reward
+            }
+            S.xp += reward;
+            S.coins += coinReward;
+            if (S.coins >= 100) unlockAchv("collector");
+            const prevStars = S.completed[lv.id];
+            S.completed[lv.id] =
+                prevStars !== undefined ? Math.max(prevStars, stars) : stars;
+            let topicBonus = null;
+            if (moduleComplete(lv.module) && !S.moduleBonus[lv.module]) {
+                S.moduleBonus[lv.module] = true;
+                const bXp = 300,
+                    bCoins = 100;
+                S.xp += bXp;
+                S.coins += bCoins;
+                topicBonus = {
+                    xp: bXp,
+                    coins: bCoins,
+                    name: MODULES.find((m) => m.id === lv.module).name,
+                };
+                if (lv.module === 1) unlockAchv("apprentice");
+                if (MODULES.find((m) => m.id === lv.module + 1))
+                    unlockAchv("explorer");
+            }
+            save();
+            showVictory(stars, reward, coinReward, lv, topicBonus);
+        }
+        function unlockAchv(id) {
+            if (S.achievements[id]) return;
+            S.achievements[id] = true;
+            save();
+        }
+        function showVictory(stars, xp, coins, lv, topicBonus) {
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
+            overlay.innerHTML = `<div class="card" style="max-width:440px;text-align:center">
+  <h2 class="glow" style="color:var(--green)">✓ MISSION COMPLETE</h2>
+  <div class="stars" style="margin:14px 0">${"⭐".repeat(stars)}${"✩".repeat(3 - stars)}</div>
+  <p>+${xp} XP &nbsp; +${coins} 💎</p>
+  ${S.combo >= 2 ? `<p style="color:var(--amber);margin-top:6px">🔥 COMBO x${S.combo}</p>` : ""}
+  ${topicBonus ? `<div class="msgbox okbox" style="margin-top:14px">🎉 TOPIC COMPLETE: ${topicBonus.name}<br>+${topicBonus.xp} XP · +${topicBonus.coins} 💎 бонус</div>` : ""}
+  <div class="row center" style="margin-top:20px">
+   ${LEVELS.find((l) => l.id === lv.id + 1 && l.module === lv.module)
+                    ? `<button class="btn" onclick="nextLevel(${lv.id + 1})">Следующая миссия →</button>`
+                    : LEVELS.find((l) => l.module === lv.module + 1)
+                        ? `<button class="btn" onclick="nextLevel(${LEVELS.find((l) => l.module === lv.module + 1).id})">Новая зона →</button>`
+                        : ""
+                }
+   <button class="btn secondary" onclick="closeVictory()">Карта мира</button>
+  </div>
+ </div>`;
+            document.body.appendChild(overlay);
+        }
+        function closeVictory() {
+            document.querySelector(".overlay")?.remove();
+            curCode = "";
+            curVis = {};
+            S.screen = "map";
+            save();
+            render();
+        }
+        function nextLevel(id) {
+            document.querySelector(".overlay")?.remove();
+            curCode = "";
+            curVis = {};
+            S.curLevel = id;
+            S.hints = 0;
+            S.attempts = 0;
+            save();
+            render();
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 14; i++) {
+                const p = document.createElement("div");
+                p.className = "particle";
+                const s = 2 + Math.random() * 3;
+                p.style.width = s + "px";
+                p.style.height = s + "px";
+                p.style.left = Math.random() * 100 + "vw";
+                p.style.top = Math.random() * 100 + "vh";
+                p.style.animationDelay = Math.random() * 8 + "s";
+                p.style.background = [
+                    getComputedStyle(document.documentElement).getPropertyValue(
+                        "--cyan",
+                    ),
+                    getComputedStyle(document.documentElement).getPropertyValue(
+                        "--purple",
+                    ),
+                ][i % 2];
+                document.body.appendChild(p);
+            }
+        }
+        initParticles();
+        render();
+    </script>
+</body>
+
+</html>
