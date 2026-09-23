@@ -1864,7 +1864,8 @@
         /* ---- LEVEL ---- */
         let curCode = "",
             curVis = {},
-            curMode = "blocks";
+            // curMode = "blocks";
+            curMode = "code";
         function renderLevel() {
             const lv = LEVELS.find((l) => l.id === S.curLevel);
             app.innerHTML = `<div class="screen">${topHud()}
@@ -1880,8 +1881,8 @@
  <div class="split">
   <div class="card">
    <div class="row" style="justify-content:space-between">
-    <div class="row"><button class="btn small ${curMode !== "code" ? "" : "secondary"}" onclick="setMode('blocks')">🧩 BLOCKS</button>
-     <button class="btn small ${curMode === "code" ? "" : "secondary"}" onclick="setMode('code')">⌨ CODE</button></div>
+    <div class="row"><button class="btn small ${curMode !== "code" ? "" : "secondary"}" onclick="setMode('blocks')" disabled>🧩 BLOCKS</button>
+     <button class="btn small ${curMode === "code" ? "" : "secondary"}" onclick="setMode('code')" disabled>⌨ CODE</button></div>
     <button class="btn small secondary" onclick="showHint()">💡 Подсказка (${S.hints}/3)</button>
    </div>
    <div id="blockbar" class="row" style="margin:12px 0">
